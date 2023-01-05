@@ -1,4 +1,7 @@
+require 'singleton'
+
 class Database
+  include Singleton
   attr_accessor :data, :schema
 
   def initialize
@@ -8,6 +11,8 @@ class Database
   end
 
   def create_table(table_name, schema = [])
+    return if @data[table_name]
+
     @data[table_name] = []
     @schema[table_name] = schema
     @next_id[table_name] = 1
@@ -20,7 +25,7 @@ class Database
     @next_id[table_name] += 1
   end
 
-  def select!(table_name, column_name, value)
+  def select(table_name, column_name, value)
     @data[table_name].select do |row|
       row[column_name] == value
     end

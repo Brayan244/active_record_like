@@ -2,7 +2,7 @@ require 'rspec'
 require_relative '../database'
 
 describe Database do
-  let(:db) { Database.new }
+  let(:db) { Database.instance }
 
   describe '#create_table' do
     it 'creates a new table in the database' do
@@ -13,6 +13,7 @@ describe Database do
 
   describe '#insert' do
     before { db.create_table(:users, %i[name email]) }
+    after { db.data.clear }
 
     it 'inserts a row into a table' do
       db.insert(:users, {  name: 'Alice', email: 'alice@example.com' })
@@ -24,15 +25,17 @@ describe Database do
     end
   end
 
-  describe '#select!' do
+  describe '#select' do
     before do
       db.create_table(:users, %i[name email])
       db.insert(:users, {  name: 'Alice', email: 'alice@example.com' })
       db.insert(:users, {  name: 'Bob', email: 'bob@example.com' })
     end
 
+    after { db.data.clear }
+
     it 'selects rows from a table that match a given value' do
-      users = db.select!(:users, :name, 'Alice')
+      users = db.select(:users, :name, 'Alice')
       expect(users).to contain_exactly({ id: 1, name: 'Alice', email: 'alice@example.com' })
     end
   end
@@ -43,6 +46,8 @@ describe Database do
       db.insert(:users, {  name: 'Alice', email: 'alice@example.com' })
       db.insert(:users, {  name: 'Bob', email: 'bob@example.com' })
     end
+
+    after { db.data.clear }
 
     it 'deletes rows from a table that match a given value' do
       db.delete(:users, :name, 'Alice')
@@ -56,6 +61,8 @@ describe Database do
       db.insert(:users, {  name: 'Alice', email: 'alice@example.com' })
       db.insert(:users, {  name: 'Bob', email: 'bob@example.com' })
     end
+
+    after { db.data.clear }
 
     it 'updates rows from a table that match a given id' do
       db.update(:users, 1, :name, 'Alice Smith')
