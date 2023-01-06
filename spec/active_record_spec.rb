@@ -4,7 +4,7 @@ require_relative '../active_record'
 describe ActiveRecord do
   describe '.inherited' do
     let(:subclass) { double }
-    let(:columns) { %i[id name] }
+    let(:columns) { %i[name] }
 
     before { allow(subclass).to receive(:columns).and_return(columns) }
 
@@ -35,6 +35,13 @@ describe ActiveRecord do
 
       expect(model.id).to eq(1)
       expect(model.name).to eq('Brayan')
+    end
+
+    it 'sets the id of the model when it is created' do
+      ActiveRecord.inherited(subclass)
+
+      model = ActiveRecord.new
+      expect(model).to respond_to(:id)
     end
   end
 end

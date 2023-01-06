@@ -2,10 +2,11 @@ require_relative 'database'
 
 class ActiveRecord
   def self.inherited(subclass)
-    table_name = "#{subclass.to_s.downcase}s"
+    @table_name = "#{subclass.to_s.downcase}s"
     columns = subclass.columns
+    columns << :id unless columns.include?(:id)
 
-    connection.create_table(table_name, columns)
+    connection.create_table(@table_name, columns)
     define_accessors(columns)
   end
 
