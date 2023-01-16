@@ -24,6 +24,13 @@ class ActiveRecord
     @connection ||= Database.instance
   end
 
+  def self.find(id)
+    row = connection.select(@table_name, :id, id).first
+    return nil unless row
+
+    new(row)
+  end
+
   def self.create(attributes = {})
     record = new(attributes)
     new_record = connection.insert(@table_name, record.instance_variables_hash)

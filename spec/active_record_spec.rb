@@ -46,4 +46,28 @@ describe ActiveRecord do
       expect(ActiveRecord.connection.data['users'].last).to include(user.instance_variables_hash)
     end
   end
+
+  describe '.find' do
+    before do
+      class User < ActiveRecord
+        columns :name, :age
+      end
+    end
+
+    after { ActiveRecord.connection.data.clear }
+
+    it 'returns the record with the given id' do
+      user = User.create(name: 'Jane', age: 25)
+
+      finded_user = User.find(user.id)
+
+      expect(finded_user.id).to eq(user.id)
+      expect(finded_user.name).to eq(user.name)
+      expect(finded_user.age).to eq(user.age)
+    end
+
+    it 'returns nil if no record is found' do
+      expect(User.find(1)).to be_nil
+    end
+  end
 end
