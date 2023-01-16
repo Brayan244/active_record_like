@@ -24,4 +24,26 @@ describe ActiveRecord do
       expect(user.name).to eq('Brayan')
     end
   end
+
+  describe '.create' do
+    before do
+      class User < ActiveRecord
+        columns :name, :age
+      end
+    end
+
+    after { ActiveRecord.connection.data.clear }
+
+    it 'creates a new record and returns it' do
+      user = User.create(name: 'Jane', age: 25)
+      expect(user.name).to eq('Jane')
+      expect(user.age).to eq(25)
+      expect(user.id).to_not be_nil
+    end
+
+    it 'inserts the record into the database' do
+      user = User.create(name: 'Jane', age: 25)
+      expect(ActiveRecord.connection.data['users'].last).to include(user.instance_variables_hash)
+    end
+  end
 end

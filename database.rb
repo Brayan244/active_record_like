@@ -23,6 +23,7 @@ class Database
     row[:id] = @next_id[table_name]
     @data[table_name] << row
     @next_id[table_name] += 1
+    row
   end
 
   def select(table_name, column_name, value)

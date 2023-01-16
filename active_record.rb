@@ -24,6 +24,13 @@ class ActiveRecord
     @connection ||= Database.instance
   end
 
+  def self.create(attributes = {})
+    record = new(attributes)
+    new_record = connection.insert(@table_name, record.instance_variables_hash)
+    record.id = new_record[:id]
+    record
+  end
+
   def self.define_accessors(columns)
     columns.each do |column|
       define_method(column) do
@@ -34,5 +41,9 @@ class ActiveRecord
         instance_variable_set("@#{column}", value)
       end
     end
+  end
+
+  def instance_variables_hash
+    Hash[instance_variables.map { |name| [name.to_s.delete('@').to_sym, instance_variable_get(name)] }]
   end
 end
