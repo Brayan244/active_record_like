@@ -38,10 +38,9 @@ class Database
     end
   end
 
-  def update(table_name, id, column_name, value)
+  def update(table_name, id, attributes)
     rows_to_update = @data[table_name].select { |row| row[:id] == id }
-    rows_to_update.each { |row| row[column_name] = value }
-
+    rows_to_update.each { |row| attributes.each { |key, value| row[key] = value } }
     rows_to_update.count
   end
 

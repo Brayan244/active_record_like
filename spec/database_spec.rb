@@ -57,19 +57,23 @@ describe Database do
 
   describe '#update' do
     before do
-      db.create_table(:users, %i[name email])
-      db.insert(:users, {  name: 'Alice', email: 'alice@example.com' })
-      db.insert(:users, {  name: 'Bob', email: 'bob@example.com' })
+      db.create_table(:users, %i[name age])
+      db.insert(:users, {  name: 'Alice', age: 25 })
+      db.insert(:users, {  name: 'Bob', age: 30 })
     end
 
     after { db.data.clear }
 
-    it 'updates rows from a table that match a given id' do
-      db.update(:users, 1, :name, 'Alice Smith')
+    it 'updates the rows in the table that match the given id' do
+      db.update(:users, 1, { name: 'Alice Smith', age: 28 })
       expect(db.data[:users]).to contain_exactly(
-        { id: 1, name: 'Alice Smith', email: 'alice@example.com' },
-        { id: 2, name: 'Bob', email: 'bob@example.com' }
+        { id: 1, name: 'Alice Smith', age: 28 },
+        { id: 2, name: 'Bob', age: 30 }
       )
+    end
+
+    it 'returns the number of rows updated' do
+      expect(db.update(:users, 1, { name: 'Alice Smith', age: 28 })).to eq(1)
     end
   end
 end

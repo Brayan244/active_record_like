@@ -2,13 +2,13 @@ require 'rspec'
 require_relative '../active_record'
 
 describe ActiveRecord do
-  describe '.columns' do
-    before do
-      class User < ActiveRecord
-        columns :name, :age
-      end
+  before do
+    class User < ActiveRecord
+      columns :name, :age
     end
+  end
 
+  describe '.columns' do
     it 'creates a table in the database for the subclass with the correct table name and columns' do
       expect(ActiveRecord.connection).to receive(:create_table).with('users', %i[name age id])
       User.columns :name, :age
@@ -26,12 +26,6 @@ describe ActiveRecord do
   end
 
   describe '.create' do
-    before do
-      class User < ActiveRecord
-        columns :name, :age
-      end
-    end
-
     after { ActiveRecord.connection.data.clear }
 
     it 'creates a new record and returns it' do
@@ -48,12 +42,6 @@ describe ActiveRecord do
   end
 
   describe '.find' do
-    before do
-      class User < ActiveRecord
-        columns :name, :age
-      end
-    end
-
     after { ActiveRecord.connection.data.clear }
 
     it 'returns the record with the given id' do
@@ -68,6 +56,21 @@ describe ActiveRecord do
 
     it 'returns nil if no record is found' do
       expect(User.find(1)).to be_nil
+    end
+  end
+
+  describe '#update' do
+    let(:user) { User.create(name: 'Jane', age: 25) }
+
+    after { ActiveRecord.connection.data.clear }
+
+    it 'updates the record in the database' do
+      user.update(name: 'Brayan', age: 30)
+
+      updated_user = User.find(user.id)
+
+      expect(updated_user.name).to eq('Brayan')
+      expect(updated_user.age).to eq(30)
     end
   end
 end

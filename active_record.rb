@@ -38,6 +38,14 @@ class ActiveRecord
     record
   end
 
+  def update(attributes = {})
+    attributes.each do |key, value|
+      instance_variable_set("@#{key}", value)
+    end
+
+    self.class.connection.update(self.class.instance_variable_get(:@table_name), id, instance_variables_hash)
+  end
+
   def self.define_accessors(columns)
     columns.each do |column|
       define_method(column) do
