@@ -59,6 +59,21 @@ describe ActiveRecord do
     end
   end
 
+  describe '.first' do
+    after { ActiveRecord.connection.data.clear }
+
+    it 'returns the first record' do
+      user = User.create(name: 'Jane', age: 25)
+      User.create(name: 'Brayan', age: 26)
+
+      first_user = User.first
+
+      expect(first_user.id).to eq(user.id)
+      expect(first_user.name).to eq(user.name)
+      expect(first_user.age).to eq(user.age)
+    end
+  end
+
   describe '#update' do
     let(:user) { User.create(name: 'Jane', age: 25) }
 
@@ -71,6 +86,56 @@ describe ActiveRecord do
 
       expect(updated_user.name).to eq('Brayan')
       expect(updated_user.age).to eq(30)
+    end
+  end
+
+  describe '#destroy' do
+    let(:user) { User.create(name: 'Jane', age: 25) }
+
+    after { ActiveRecord.connection.data.clear }
+
+    it 'deletes the record from the database' do
+      user.destroy
+
+      expect(User.find(user.id)).to be_nil
+    end
+  end
+
+  describe '#save' do
+    let(:user) { User.create(name: 'Jane', age: 25) }
+
+    after { ActiveRecord.connection.data.clear }
+
+    it 'updates the record in the database' do
+      user.name = 'Brayan'
+      user.age = 30
+      user.save
+
+      updated_user = User.find(user.id)
+
+      expect(updated_user.name).to eq('Brayan')
+      expect(updated_user.age).to eq(30)
+    end
+
+    it 'creates a new record if the record does not exist in the database' do
+      new_user = User.new(name: 'Brayan', age: 26)
+      new_user.save
+
+      expect(new_user.id).to_not be_nil
+    end
+
+    it 'returns true if the record was saved' do
+      expect(user.save).to be true
+    end
+  end
+
+  describe '#new_record?' do
+    it 'returns true if the record has not been saved' do
+      expect(User.new.new_record?).to be true
+    end
+
+    it 'returns false if the record has been saved' do
+      expect(User.create(name: 'Jane', age: 25).new_record?).to be false
     end
   end
 end

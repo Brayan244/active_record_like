@@ -38,12 +38,35 @@ class ActiveRecord
     record
   end
 
+  def table_name
+    self.class.instance_variable_get(:@table_name)
+  end
+
   def update(attributes = {})
     attributes.each do |key, value|
       instance_variable_set("@#{key}", value)
     end
 
-    self.class.connection.update(self.class.instance_variable_get(:@table_name), id, instance_variables_hash)
+    self.class.connection.update(table_name, id, instance_variables_hash)
+  end
+
+  def destroy
+    return unless id
+
+    self.class.connection.delete(table_name, :id, id)
+  end
+
+  def save
+    id ? update : new_record = self.class.create(instance_variables_hash)
+    self.id = new_record.id if new_record
+
+    true
+  rescue StandardError
+    false
+  end
+
+  def new_record?
+    id.nil?
   end
 
   def self.define_accessors(columns)
